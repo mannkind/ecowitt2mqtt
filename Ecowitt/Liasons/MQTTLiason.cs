@@ -1,53 +1,53 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Ecowitt.Models;
+using Ecowitt.Models.Options;
+using Ecowitt.Models.Shared;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TwoMQTT;
+using TwoMQTT.Interfaces;
+using TwoMQTT.Liasons;
 using TwoMQTT.Models;
 using TwoMQTT.Utils;
-using TwoMQTT.Liasons;
-using Ecowitt.Models.Options;
-using Ecowitt.Models.Shared;
-using TwoMQTT.Interfaces;
-using Ecowitt.Models;
-using System;
 
-namespace Ecowitt.Liasons
+namespace Ecowitt.Liasons;
+
+/// <inheritdoc />
+public class MQTTLiason : MQTTLiasonBase<Resource, object, SlugMapping, SharedOpts>, IMQTTLiason<Resource, object>
 {
-    /// <inheritdoc />
-    public class MQTTLiason : MQTTLiasonBase<Resource, object, SlugMapping, SharedOpts>, IMQTTLiason<Resource, object>
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="logger"></param>
+    /// <param name="generator"></param>
+    /// <param name="sharedOpts"></param>
+    public MQTTLiason(ILogger<MQTTLiason> logger, IMQTTGenerator generator, IOptions<SharedOpts> sharedOpts) :
+        base(logger, generator, sharedOpts)
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="logger"></param>
-        /// <param name="generator"></param>
-        /// <param name="sharedOpts"></param>
-        public MQTTLiason(ILogger<MQTTLiason> logger, IMQTTGenerator generator, IOptions<SharedOpts> sharedOpts) :
-            base(logger, generator, sharedOpts)
+        this.UnitSystem = sharedOpts.Value.UnitSystem;
+    }
+
+    /// <inheritdoc />
+    public IEnumerable<(string topic, string payload)> MapData(Resource input)
+    {
+        var results = new List<(string, string)>();
+        var slug = this.Questions
+            .Select(x => x.Slug)
+            .FirstOrDefault() ?? string.Empty;
+
+        if (string.IsNullOrEmpty(slug))
         {
-            this.UnitSystem = sharedOpts.Value.UnitSystem;
+            this.Logger.LogDebug("Unable to find slug for {mac}", input.PASSKEY);
+            return results;
         }
 
-        /// <inheritdoc />
-        public IEnumerable<(string topic, string payload)> MapData(Resource input)
-        {
-            var results = new List<(string, string)>();
-            var slug = this.Questions
-                .Select(x => x.Slug)
-                .FirstOrDefault() ?? string.Empty;
-
-            if (string.IsNullOrEmpty(slug))
+        this.Logger.LogDebug("Found slug {slug} for incoming data for {mac}", slug, input.PASSKEY);
+        var us = this.UnitSystem;
+        results.AddRange(new[]
             {
-                this.Logger.LogDebug("Unable to find slug for {mac}", input.PASSKEY);
-                return results;
-            }
-
-            this.Logger.LogDebug("Found slug {slug} for incoming data for {mac}", slug, input.PASSKEY);
-            var us = this.UnitSystem;
-            results.AddRange(new[]
-                {
                     (this.Generator.StateTopic(slug, nameof(Resource.PASSKEY)), input.PASSKEY),
                     (this.Generator.StateTopic(slug, nameof(Resource.StationType)), input.StationType),
                     (this.Generator.StateTopic(slug, nameof(Resource.Freq)), input.Freq),
@@ -123,46 +123,46 @@ namespace Ecowitt.Liasons
                     (this.Generator.StateTopic(slug, nameof(Resource.WindSpeed)), WindUnits(input.WindSpeed, us).ToStringOrEmpty()),
                     (this.Generator.StateTopic(slug, nameof(Resource.YearlyRain)), RainUnits(input.YearlyRain, us).ToStringOrEmpty()),
                 }
-            );
+        );
 
-            return results;
+        return results;
 
-            static decimal? BaromUnits(decimal? input, UnitSystem us = UnitSystem.Metric) =>
-                input.HasValue ? us switch
-                {
-                    UnitSystem.Metric => Math.Round(input.Value * 33.8639M, 3, MidpointRounding.AwayFromZero),
-                    _ => input,
-                } : null;
-
-            static decimal? RainUnits(decimal? input, UnitSystem us) =>
-                input.HasValue ? us switch
-                {
-                    UnitSystem.Metric => Math.Round(input.Value * 25.4M, 3, MidpointRounding.AwayFromZero),
-                    _ => input,
-                } : null;
-
-            static decimal? TempUnits(decimal? input, UnitSystem us) =>
-                input.HasValue ? us switch
-                {
-                    UnitSystem.Metric => Math.Round(((input.Value -32.0M) * (5.0M / 9.0M)), 3, MidpointRounding.AwayFromZero),
-                    _ => input,
-                } : null;
-
-            static decimal? WindUnits(decimal? input, UnitSystem us) =>
-                input.HasValue ? us switch
-                {
-                    UnitSystem.Metric => Math.Round(input.Value * 1.60934M, 3, MidpointRounding.AwayFromZero),
-                    _ => input,
-                } : null;
-        }
-
-        /// <inheritdoc />
-        public IEnumerable<(string slug, string sensor, string type, MQTTDiscovery discovery)> Discoveries()
-        {
-            var discoveries = new List<(string, string, string, MQTTDiscovery)>();
-            var assembly = Assembly.GetAssembly(typeof(Program))?.GetName() ?? new AssemblyName();
-            var mapping = new[]
+        static decimal? BaromUnits(decimal? input, UnitSystem us = UnitSystem.Metric) =>
+            input.HasValue ? us switch
             {
+                UnitSystem.Metric => Math.Round(input.Value * 33.8639M, 3, MidpointRounding.AwayFromZero),
+                _ => input,
+            } : null;
+
+        static decimal? RainUnits(decimal? input, UnitSystem us) =>
+            input.HasValue ? us switch
+            {
+                UnitSystem.Metric => Math.Round(input.Value * 25.4M, 3, MidpointRounding.AwayFromZero),
+                _ => input,
+            } : null;
+
+        static decimal? TempUnits(decimal? input, UnitSystem us) =>
+            input.HasValue ? us switch
+            {
+                UnitSystem.Metric => Math.Round(((input.Value - 32.0M) * (5.0M / 9.0M)), 3, MidpointRounding.AwayFromZero),
+                _ => input,
+            } : null;
+
+        static decimal? WindUnits(decimal? input, UnitSystem us) =>
+            input.HasValue ? us switch
+            {
+                UnitSystem.Metric => Math.Round(input.Value * 1.60934M, 3, MidpointRounding.AwayFromZero),
+                _ => input,
+            } : null;
+    }
+
+    /// <inheritdoc />
+    public IEnumerable<(string slug, string sensor, string type, MQTTDiscovery discovery)> Discoveries()
+    {
+        var discoveries = new List<(string, string, string, MQTTDiscovery)>();
+        var assembly = Assembly.GetAssembly(typeof(Program))?.GetName() ?? new AssemblyName();
+        var mapping = new[]
+        {
                 new { Sensor = nameof(Resource.PASSKEY), Type = Const.SENSOR },
                 new { Sensor = nameof(Resource.StationType), Type = Const.SENSOR },
                 new { Sensor = nameof(Resource.Freq), Type = Const.SENSOR },
@@ -232,128 +232,127 @@ namespace Ecowitt.Liasons
                 new { Sensor = nameof(Resource.YearlyRain), Type = Const.SENSOR },
             };
 
-            foreach (var input in this.Questions)
+        foreach (var input in this.Questions)
+        {
+            foreach (var map in mapping)
             {
-                foreach (var map in mapping)
+                this.Logger.LogDebug("Generating discovery for {sensor}", map.Sensor);
+                var (icon, uom) = UnitOfMeasure(map.Sensor, this.UnitSystem);
+                var discovery = this.Generator.BuildDiscovery(input.Slug, map.Sensor, assembly, false);
+                discovery = discovery with
                 {
-                    this.Logger.LogDebug("Generating discovery for {sensor}", map.Sensor);
-                    var (icon, uom) = UnitOfMeasure(map.Sensor, this.UnitSystem);
-                    var discovery = this.Generator.BuildDiscovery(input.Slug, map.Sensor, assembly, false);
-                    discovery = discovery with 
-                    { 
-                        Icon = icon,
-                        UnitOfMeasurement = uom,
-                    };
+                    Icon = icon,
+                    UnitOfMeasurement = uom,
+                };
 
-                    discoveries.Add((input.Slug, map.Sensor, map.Type, discovery));
-                }
+                discoveries.Add((input.Slug, map.Sensor, map.Type, discovery));
             }
-
-            return discoveries;
-
-            static (string icon, string uom) UnitOfMeasure(string sensor, UnitSystem us = UnitSystem.Metric)
-            {
-                var barom = sensor.Contains("barom", System.StringComparison.OrdinalIgnoreCase);
-                var battery = sensor.Contains("batt", System.StringComparison.OrdinalIgnoreCase);
-                var humidity = sensor.Contains("humidity", System.StringComparison.OrdinalIgnoreCase);
-                var rain = sensor.Contains("rain", System.StringComparison.OrdinalIgnoreCase);
-                var soilMoisture = sensor.Contains("soilmois", System.StringComparison.OrdinalIgnoreCase);
-                var soilTemp = sensor.Contains("soiltemp", System.StringComparison.OrdinalIgnoreCase);
-                var temp = sensor.Contains("temp", System.StringComparison.OrdinalIgnoreCase);
-                var wind = sensor.Contains("wind", System.StringComparison.OrdinalIgnoreCase);
-
-                var icon = sensor switch
-                {
-                    nameof(Models.Source.Response.Co2) => string.Empty,
-                    nameof(Models.Source.Response.Dewpoint) => "mdi:thermometer",
-                    nameof(Models.Source.Response.Feelslike) => "mdi:thermometer",
-                    nameof(Models.Source.Response.HeatIndex) => "mdi:thermometer",
-                    nameof(Models.Source.Response.MaxDailyWindGust) => "mdi:weather-windy",
-                    nameof(Models.Source.Response.Pm251) => "mdi:biohazard",
-                    nameof(Models.Source.Response.Pm2524h1) => "mdi:biohazard",
-                    nameof(Models.Source.Response.SolarRadiation) => "mdi:weather-sunny",
-                    nameof(Models.Source.Response.Uv) => "mdi:weather-sunny",
-                    nameof(Models.Source.Response.Windchill) => "mdi:thermometer",
-                    string when barom => "mdi:cloud",
-                    string when battery => "mdi:battery",
-                    string when humidity => "mdi:water-percent",
-                    string when rain => "mdi:weather-pouring",
-                    string when soilMoisture => "mdi:water-percent",
-                    string when soilTemp => "mdi:thermometer",
-                    string when temp => "mdi:thermometer",
-                    string when wind => "mdi:weather-windy",
-                    _ => "mid:eye",
-                };
-
-                var unitOfMeasure = sensor switch
-                {
-                    nameof(Models.Source.Response.Co2) => "ppm",
-                    nameof(Models.Source.Response.Dewpoint) => TemperatureUOM(us),
-                    nameof(Models.Source.Response.Feelslike) => TemperatureUOM(us),
-                    nameof(Models.Source.Response.HeatIndex) => TemperatureUOM(us),
-                    nameof(Models.Source.Response.MaxDailyWindGust) => WindUOM(us),
-                    nameof(Models.Source.Response.Pm251) => "µg/m^3",
-                    nameof(Models.Source.Response.Pm2524h1) => "µg/m^3",
-                    nameof(Models.Source.Response.SolarRadiation) => "w/m^2",
-                    nameof(Models.Source.Response.Uv) => "UV index",
-                    nameof(Models.Source.Response.WindDirection) => "°",
-                    nameof(Models.Source.Response.Windchill) => TemperatureUOM(us),
-                    string when barom => BaromUOM(us),
-                    string when rain => RainUOM(us),
-                    string when soilMoisture => "%",
-                    string when soilTemp => TemperatureUOM(us),
-                    string when temp => TemperatureUOM(us),
-                    string when wind => WindUOM(us),
-                    _ => string.Empty,
-                };
-
-
-                return (icon, unitOfMeasure);
-            }
-
-            static string BaromUOM(UnitSystem us) =>
-                us switch
-                {
-                    UnitSystem.Imperial => "inHg",
-                    UnitSystem.Metric => "hPa",
-                    _ => string.Empty,
-                };
-
-            static string RainUOM(UnitSystem us) =>
-                us switch
-                {
-                    UnitSystem.Imperial => "in",
-                    UnitSystem.Metric => "mm",
-                    _ => string.Empty,
-                };
-
-            static string TemperatureUOM(UnitSystem us) =>
-                us switch
-                {
-                    UnitSystem.Imperial => "°F",
-                    UnitSystem.Metric => "°C",
-                    _ => string.Empty,
-                };
-
-            static string WindUOM(UnitSystem us) =>
-                us switch
-                {
-                    UnitSystem.Imperial => "mph",
-                    UnitSystem.Metric => "km/h",
-                    _ => string.Empty,
-                };
         }
 
-        private readonly UnitSystem UnitSystem;
-    }
+        return discoveries;
 
-    public static class NullableDecimalExt
-    {
-        public static string ToStringOrEmpty(this decimal? d) => 
-            d switch
+        static (string icon, string uom) UnitOfMeasure(string sensor, UnitSystem us = UnitSystem.Metric)
+        {
+            var barom = sensor.Contains("barom", System.StringComparison.OrdinalIgnoreCase);
+            var battery = sensor.Contains("batt", System.StringComparison.OrdinalIgnoreCase);
+            var humidity = sensor.Contains("humidity", System.StringComparison.OrdinalIgnoreCase);
+            var rain = sensor.Contains("rain", System.StringComparison.OrdinalIgnoreCase);
+            var soilMoisture = sensor.Contains("soilmois", System.StringComparison.OrdinalIgnoreCase);
+            var soilTemp = sensor.Contains("soiltemp", System.StringComparison.OrdinalIgnoreCase);
+            var temp = sensor.Contains("temp", System.StringComparison.OrdinalIgnoreCase);
+            var wind = sensor.Contains("wind", System.StringComparison.OrdinalIgnoreCase);
+
+            var icon = sensor switch
             {
-                null => string.Empty,
-                _ => d.ToString() ?? string.Empty
+                nameof(Models.Source.Response.Co2) => string.Empty,
+                nameof(Models.Source.Response.Dewpoint) => "mdi:thermometer",
+                nameof(Models.Source.Response.Feelslike) => "mdi:thermometer",
+                nameof(Models.Source.Response.HeatIndex) => "mdi:thermometer",
+                nameof(Models.Source.Response.MaxDailyWindGust) => "mdi:weather-windy",
+                nameof(Models.Source.Response.Pm251) => "mdi:biohazard",
+                nameof(Models.Source.Response.Pm2524h1) => "mdi:biohazard",
+                nameof(Models.Source.Response.SolarRadiation) => "mdi:weather-sunny",
+                nameof(Models.Source.Response.Uv) => "mdi:weather-sunny",
+                nameof(Models.Source.Response.Windchill) => "mdi:thermometer",
+                string when barom => "mdi:cloud",
+                string when battery => "mdi:battery",
+                string when humidity => "mdi:water-percent",
+                string when rain => "mdi:weather-pouring",
+                string when soilMoisture => "mdi:water-percent",
+                string when soilTemp => "mdi:thermometer",
+                string when temp => "mdi:thermometer",
+                string when wind => "mdi:weather-windy",
+                _ => "mid:eye",
+            };
+
+            var unitOfMeasure = sensor switch
+            {
+                nameof(Models.Source.Response.Co2) => "ppm",
+                nameof(Models.Source.Response.Dewpoint) => TemperatureUOM(us),
+                nameof(Models.Source.Response.Feelslike) => TemperatureUOM(us),
+                nameof(Models.Source.Response.HeatIndex) => TemperatureUOM(us),
+                nameof(Models.Source.Response.MaxDailyWindGust) => WindUOM(us),
+                nameof(Models.Source.Response.Pm251) => "µg/m^3",
+                nameof(Models.Source.Response.Pm2524h1) => "µg/m^3",
+                nameof(Models.Source.Response.SolarRadiation) => "w/m^2",
+                nameof(Models.Source.Response.Uv) => "UV index",
+                nameof(Models.Source.Response.WindDirection) => "°",
+                nameof(Models.Source.Response.Windchill) => TemperatureUOM(us),
+                string when barom => BaromUOM(us),
+                string when rain => RainUOM(us),
+                string when soilMoisture => "%",
+                string when soilTemp => TemperatureUOM(us),
+                string when temp => TemperatureUOM(us),
+                string when wind => WindUOM(us),
+                _ => string.Empty,
+            };
+
+
+            return (icon, unitOfMeasure);
+        }
+
+        static string BaromUOM(UnitSystem us) =>
+            us switch
+            {
+                UnitSystem.Imperial => "inHg",
+                UnitSystem.Metric => "hPa",
+                _ => string.Empty,
+            };
+
+        static string RainUOM(UnitSystem us) =>
+            us switch
+            {
+                UnitSystem.Imperial => "in",
+                UnitSystem.Metric => "mm",
+                _ => string.Empty,
+            };
+
+        static string TemperatureUOM(UnitSystem us) =>
+            us switch
+            {
+                UnitSystem.Imperial => "°F",
+                UnitSystem.Metric => "°C",
+                _ => string.Empty,
+            };
+
+        static string WindUOM(UnitSystem us) =>
+            us switch
+            {
+                UnitSystem.Imperial => "mph",
+                UnitSystem.Metric => "km/h",
+                _ => string.Empty,
             };
     }
+
+    private readonly UnitSystem UnitSystem;
+}
+
+public static class NullableDecimalExt
+{
+    public static string ToStringOrEmpty(this decimal? d) =>
+        d switch
+        {
+            null => string.Empty,
+            _ => d.ToString() ?? string.Empty
+        };
 }
