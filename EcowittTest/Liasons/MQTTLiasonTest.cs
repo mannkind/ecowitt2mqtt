@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using TwoMQTT.Utils;
+using TwoMQTT.Interfaces;
 
 namespace EcowittTest.Liasons;
 
