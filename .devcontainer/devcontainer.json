@@ -2,18 +2,9 @@
   "name": "twomqtt",
   "dockerFile": "Dockerfile",
   "settings": {
-    "terminal.integrated.shell.linux": "/bin/bash",
     "csharpsortusings.sort.usings.splitGroups": false
   },
-  "runArgs": [
-    "-u",
-    "vscode",
-    "-v",
-    "${env:HOME}${env:USERPROFILE}/.ssh:/home/vscode/.ssh-localhost:ro",
-    "-p", 
-    "10000:10000"
-  ],
-  "postCreateCommand": "mkdir -p ~/.ssh && cp -r ~/.ssh-localhost/* ~/.ssh && chmod 700 ~/.ssh && chmod 600 ~/.ssh/*",
+  "remoteUser": "vscode",
   "extensions": [
     "ms-dotnettools.csharp",
     "k--kato.docomment",
