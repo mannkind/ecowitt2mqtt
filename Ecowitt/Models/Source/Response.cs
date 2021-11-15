@@ -73,7 +73,7 @@ public record Response
     public decimal? EventRain { get; set; }
 
     [JsonProperty("feelslike")]
-    public decimal? Feelslike
+    public decimal? FeelsLike
     {
         get
         {
@@ -82,7 +82,7 @@ public record Response
                 return null;
             }
 
-            return this.TempOudoor <= 50 && this.WindSpeed > 3 ? this.Windchill :
+            return this.TempOudoor <= 50 && this.WindSpeed > 3 ? this.WindChill :
                 this.TempOudoor >= 80 ? this.HeatIndex :
                 this.TempOudoor;
         }
@@ -264,7 +264,7 @@ public record Response
     public decimal? WeeklyRain { get; set; }
 
     [JsonProperty("windchill")]
-    public decimal? Windchill
+    public decimal? WindChill
     {
         get
         {
