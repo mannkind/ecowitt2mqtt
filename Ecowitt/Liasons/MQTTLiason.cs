@@ -55,6 +55,7 @@ public class MQTTLiason : MQTTLiasonBase<Resource, object, SlugMapping, SharedOp
                     (this.Generator.StateTopic(slug, nameof(Resource.DateUTC)), input.DateUTC),
 
                     /* Batteries */
+                    (this.Generator.StateTopic(slug, nameof(Resource.Wh26Batt)), input.Wh26Batt),
                     (this.Generator.StateTopic(slug, nameof(Resource.Wh40Batt)), input.Wh40Batt),
                     (this.Generator.StateTopic(slug, nameof(Resource.Wh57Batt)), input.Wh57Batt),
                     (this.Generator.StateTopic(slug, nameof(Resource.Wh68Batt)), input.Wh68Batt),
@@ -200,6 +201,7 @@ public class MQTTLiason : MQTTLiasonBase<Resource, object, SlugMapping, SharedOp
                 new { Sensor = nameof(Resource.Model), Type = Const.SENSOR },
                 new { Sensor = nameof(Resource.DateUTC), Type = Const.SENSOR },
 
+                new { Sensor = nameof(Resource.Wh26Batt), Type = Const.SENSOR },
                 new { Sensor = nameof(Resource.Wh40Batt), Type = Const.SENSOR },
                 new { Sensor = nameof(Resource.Wh57Batt), Type = Const.SENSOR },
                 new { Sensor = nameof(Resource.Wh68Batt), Type = Const.SENSOR },

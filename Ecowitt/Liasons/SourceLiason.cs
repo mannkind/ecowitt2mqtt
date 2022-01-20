@@ -40,6 +40,7 @@ public class SourceLiason : PushSourceLiasonBase<Resource, Response, ISourceDAO>
                 Model = response.Model,
                 DateUTC = response.DateUTC,
 
+                Wh26Batt = response.Wh26Batt,
                 Wh40Batt = response.Wh40Batt,
                 Wh57Batt = response.Wh57Batt,
                 Wh68Batt = response.Wh68Batt,

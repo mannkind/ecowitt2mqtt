@@ -28,6 +28,9 @@ public record Response
 
     /* Batteries */
 
+    [JsonProperty("wh26batt")]
+    public string Wh26Batt { get; set; } = string.Empty;
+
     [JsonProperty("wh40batt")]
     public string Wh40Batt { get; set; } = string.Empty;
 

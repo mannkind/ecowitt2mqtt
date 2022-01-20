@@ -13,6 +13,7 @@ public record Resource
 
     /* Batteries */
 
+    public string Wh26Batt { get; set; } = string.Empty;
     public string Wh40Batt { get; set; } = string.Empty;
     public string Wh57Batt { get; set; } = string.Empty;
     public string Wh68Batt { get; set; } = string.Empty;
