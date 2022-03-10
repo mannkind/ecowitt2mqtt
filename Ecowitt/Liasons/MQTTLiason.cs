@@ -28,6 +28,7 @@ public class MQTTLiason : MQTTLiasonBase<Resource, object, SlugMapping, SharedOp
         base(logger, generator, sharedOpts)
     {
         this.UnitSystem = sharedOpts.Value.UnitSystem;
+        this.DataReceivedExpiration = sharedOpts.Value.DataReceivedExpiration;
     }
 
     /// <inheritdoc />
@@ -48,6 +49,8 @@ public class MQTTLiason : MQTTLiasonBase<Resource, object, SlugMapping, SharedOp
         var us = this.UnitSystem;
         results.AddRange(new[]
             {
+                    this.Generator.DataReceivedTopicPayload(slug),
+
                     (this.Generator.StateTopic(slug, nameof(Resource.PASSKEY)), input.PASSKEY),
                     (this.Generator.StateTopic(slug, nameof(Resource.StationType)), input.StationType),
                     (this.Generator.StateTopic(slug, nameof(Resource.Freq)), input.Freq),
@@ -297,6 +300,8 @@ public class MQTTLiason : MQTTLiasonBase<Resource, object, SlugMapping, SharedOp
 
         foreach (var input in this.Questions)
         {
+            discoveries.Add(this.Generator.DataReceivedDiscovery(input.Slug, assembly, this.DataReceivedExpiration));
+
             foreach (var map in mapping)
             {
                 this.Logger.LogDebug("Generating discovery for {sensor}", map.Sensor);
@@ -408,6 +413,7 @@ public class MQTTLiason : MQTTLiasonBase<Resource, object, SlugMapping, SharedOp
     }
 
     private readonly UnitSystem UnitSystem;
+    private readonly TimeSpan DataReceivedExpiration;
 }
 
 public static class NullableDecimalExt
