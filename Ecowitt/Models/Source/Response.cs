@@ -28,18 +28,95 @@ public record Response
 
     /* Batteries */
 
+    [JsonProperty("wh26batt")]
+    public string Wh26Batt { get; set; } = string.Empty;
+
+    [JsonProperty("wh40batt")]
+    public string Wh40Batt { get; set; } = string.Empty;
+
+    [JsonProperty("wh57batt")]
+    public string Wh57Batt { get; set; } = string.Empty;
+
     [JsonProperty("wh68batt")]
     public string Wh68Batt { get; set; } = string.Empty;
 
-    [JsonProperty("wh26batt")]
-    public string Wh26Batt { get; set; } = string.Empty;
+    [JsonProperty("wh80batt")]
+    public string Wh80Batt { get; set; } = string.Empty;
 
     [JsonProperty("batt1")]
     public string Batt1 { get; set; } = string.Empty;
 
+    [JsonProperty("batt2")]
+    public string Batt2 { get; set; } = string.Empty;
+
+    [JsonProperty("batt3")]
+    public string Batt3 { get; set; } = string.Empty;
+
+    [JsonProperty("batt4")]
+    public string Batt4 { get; set; } = string.Empty;
+
+    [JsonProperty("batt5")]
+    public string Batt5 { get; set; } = string.Empty;
+
+    [JsonProperty("batt6")]
+    public string Batt6 { get; set; } = string.Empty;
+
+    [JsonProperty("batt7")]
+    public string Batt7 { get; set; } = string.Empty;
+
+    [JsonProperty("batt8")]
+    public string Batt8 { get; set; } = string.Empty;
+
+    [JsonProperty("soilbatt1")]
+    public string SoilBatt1 { get; set; } = string.Empty;
+
+    [JsonProperty("soilbatt2")]
+    public string SoilBatt2 { get; set; } = string.Empty;
+
+    [JsonProperty("soilbatt3")]
+    public string SoilBatt3 { get; set; } = string.Empty;
+
+    [JsonProperty("soilbatt4")]
+    public string SoilBatt4 { get; set; } = string.Empty;
+
+    [JsonProperty("soilbatt5")]
+    public string SoilBatt5 { get; set; } = string.Empty;
+
+    [JsonProperty("soilbatt6")]
+    public string SoilBatt6 { get; set; } = string.Empty;
+
+    [JsonProperty("soilbatt7")]
+    public string SoilBatt7 { get; set; } = string.Empty;
+
+    [JsonProperty("soilbatt8")]
+    public string SoilBatt8 { get; set; } = string.Empty;
+
     [JsonProperty("pm25batt1")]
     public string Pm25Batt1 { get; set; } = string.Empty;
 
+    [JsonProperty("pm25batt2")]
+    public string Pm25Batt2 { get; set; } = string.Empty;
+
+    [JsonProperty("pm25batt3")]
+    public string Pm25Batt3 { get; set; } = string.Empty;
+
+    [JsonProperty("pm25batt4")]
+    public string Pm25Batt4 { get; set; } = string.Empty;
+
+    [JsonProperty("leakbatt1")]
+    public string LeakBatt1 { get; set; } = string.Empty;
+
+    [JsonProperty("leakbatt2")]
+    public string LeakBatt2 { get; set; } = string.Empty;
+
+    [JsonProperty("leakbatt3")]
+    public string LeakBatt3 { get; set; } = string.Empty;
+
+    [JsonProperty("leakbatt4")]
+    public string LeakBatt4 { get; set; } = string.Empty;
+
+    [JsonProperty("leakbatt5")]
+    public string LeakBatt5 { get; set; } = string.Empty;
 
     /* Sensor Data */
 

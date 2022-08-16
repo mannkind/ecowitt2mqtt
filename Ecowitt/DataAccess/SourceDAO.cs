@@ -45,12 +45,23 @@ public class SourceDAO : IPushingSourceDAO<Response>, ISourceDAO
 
         while (!cancellationToken.IsCancellationRequested)
         {
-            var context = await listener.GetContextAsync();
-            var json = await ParseBodyAsync(context.Request, cancellationToken) ?? string.Empty;
-            var res = JsonConvert.DeserializeObject<Response?>(json);
-            var bytes = Encoding.UTF8.GetBytes("OK\n");
-            await context.Response.OutputStream.WriteAsync(bytes, 0, bytes.Length, cancellationToken);
-            context.Response.OutputStream.Close();
+            Response? res = null;
+
+            try
+            {
+                var context = await listener.GetContextAsync();
+                var json = await ParseBodyAsync(context.Request, cancellationToken) ?? string.Empty;
+                var des = JsonConvert.DeserializeObject<Response?>(json);
+                var bytes = Encoding.UTF8.GetBytes("OK\n");
+                await context.Response.OutputStream.WriteAsync(bytes, 0, bytes.Length, cancellationToken);
+                context.Response.OutputStream.Close();
+
+                res = des;
+            }
+            catch (Exception e)
+            {
+                this.Logger.LogError("Unable to receive context; {exception}", e);
+            }
 
             yield return res;
         }

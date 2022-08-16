@@ -11,6 +11,39 @@ public record Resource
     public string Model { get; set; } = string.Empty;
     public string DateUTC { get; set; } = string.Empty;
 
+    /* Batteries */
+
+    public string Wh26Batt { get; set; } = string.Empty;
+    public string Wh40Batt { get; set; } = string.Empty;
+    public string Wh57Batt { get; set; } = string.Empty;
+    public string Wh68Batt { get; set; } = string.Empty;
+    public string Wh80Batt { get; set; } = string.Empty;
+    public string Batt1 { get; set; } = string.Empty;
+    public string Batt2 { get; set; } = string.Empty;
+    public string Batt3 { get; set; } = string.Empty;
+    public string Batt4 { get; set; } = string.Empty;
+    public string Batt5 { get; set; } = string.Empty;
+    public string Batt6 { get; set; } = string.Empty;
+    public string Batt7 { get; set; } = string.Empty;
+    public string Batt8 { get; set; } = string.Empty;
+    public string SoilBatt1 { get; set; } = string.Empty;
+    public string SoilBatt2 { get; set; } = string.Empty;
+    public string SoilBatt3 { get; set; } = string.Empty;
+    public string SoilBatt4 { get; set; } = string.Empty;
+    public string SoilBatt5 { get; set; } = string.Empty;
+    public string SoilBatt6 { get; set; } = string.Empty;
+    public string SoilBatt7 { get; set; } = string.Empty;
+    public string SoilBatt8 { get; set; } = string.Empty;
+    public string Pm25Batt1 { get; set; } = string.Empty;
+    public string Pm25Batt2 { get; set; } = string.Empty;
+    public string Pm25Batt3 { get; set; } = string.Empty;
+    public string Pm25Batt4 { get; set; } = string.Empty;
+    public string LeakBatt1 { get; set; } = string.Empty;
+    public string LeakBatt2 { get; set; } = string.Empty;
+    public string LeakBatt3 { get; set; } = string.Empty;
+    public string LeakBatt4 { get; set; } = string.Empty;
+    public string LeakBatt5 { get; set; } = string.Empty;
+
     /* Sensor Data */
     public decimal? BarometerAbsolute { get; set; }
     public decimal? BarometerRelative { get; set; }

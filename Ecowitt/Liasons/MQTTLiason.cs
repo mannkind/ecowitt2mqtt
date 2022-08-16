@@ -28,6 +28,7 @@ public class MQTTLiason : MQTTLiasonBase<Resource, object, SlugMapping, SharedOp
         base(logger, generator, sharedOpts)
     {
         this.UnitSystem = sharedOpts.Value.UnitSystem;
+        this.DataReceivedExpiration = sharedOpts.Value.DataReceivedExpiration;
     }
 
     /// <inheritdoc />
@@ -48,12 +49,46 @@ public class MQTTLiason : MQTTLiasonBase<Resource, object, SlugMapping, SharedOp
         var us = this.UnitSystem;
         results.AddRange(new[]
             {
+                    this.Generator.DataReceivedTopicPayload(slug),
+
                     (this.Generator.StateTopic(slug, nameof(Resource.PASSKEY)), input.PASSKEY),
                     (this.Generator.StateTopic(slug, nameof(Resource.StationType)), input.StationType),
                     (this.Generator.StateTopic(slug, nameof(Resource.Freq)), input.Freq),
                     (this.Generator.StateTopic(slug, nameof(Resource.Model)), input.Model),
                     (this.Generator.StateTopic(slug, nameof(Resource.DateUTC)), input.DateUTC),
-                
+
+                    /* Batteries */
+                    (this.Generator.StateTopic(slug, nameof(Resource.Wh26Batt)), input.Wh26Batt),
+                    (this.Generator.StateTopic(slug, nameof(Resource.Wh40Batt)), input.Wh40Batt),
+                    (this.Generator.StateTopic(slug, nameof(Resource.Wh57Batt)), input.Wh57Batt),
+                    (this.Generator.StateTopic(slug, nameof(Resource.Wh68Batt)), input.Wh68Batt),
+                    (this.Generator.StateTopic(slug, nameof(Resource.Wh80Batt)), input.Wh80Batt),
+                    (this.Generator.StateTopic(slug, nameof(Resource.Batt1)), input.Batt1),
+                    (this.Generator.StateTopic(slug, nameof(Resource.Batt2)), input.Batt2),
+                    (this.Generator.StateTopic(slug, nameof(Resource.Batt3)), input.Batt3),
+                    (this.Generator.StateTopic(slug, nameof(Resource.Batt4)), input.Batt4),
+                    (this.Generator.StateTopic(slug, nameof(Resource.Batt5)), input.Batt5),
+                    (this.Generator.StateTopic(slug, nameof(Resource.Batt6)), input.Batt6),
+                    (this.Generator.StateTopic(slug, nameof(Resource.Batt7)), input.Batt7),
+                    (this.Generator.StateTopic(slug, nameof(Resource.Batt8)), input.Batt8),
+                    (this.Generator.StateTopic(slug, nameof(Resource.SoilBatt1)), input.SoilBatt1),
+                    (this.Generator.StateTopic(slug, nameof(Resource.SoilBatt2)), input.SoilBatt2),
+                    (this.Generator.StateTopic(slug, nameof(Resource.SoilBatt3)), input.SoilBatt3),
+                    (this.Generator.StateTopic(slug, nameof(Resource.SoilBatt4)), input.SoilBatt4),
+                    (this.Generator.StateTopic(slug, nameof(Resource.SoilBatt5)), input.SoilBatt5),
+                    (this.Generator.StateTopic(slug, nameof(Resource.SoilBatt6)), input.SoilBatt6),
+                    (this.Generator.StateTopic(slug, nameof(Resource.SoilBatt7)), input.SoilBatt7),
+                    (this.Generator.StateTopic(slug, nameof(Resource.SoilBatt8)), input.SoilBatt8),
+                    (this.Generator.StateTopic(slug, nameof(Resource.Pm25Batt1)), input.Pm25Batt1),
+                    (this.Generator.StateTopic(slug, nameof(Resource.Pm25Batt2)), input.Pm25Batt2),
+                    (this.Generator.StateTopic(slug, nameof(Resource.Pm25Batt3)), input.Pm25Batt3),
+                    (this.Generator.StateTopic(slug, nameof(Resource.Pm25Batt4)), input.Pm25Batt4),
+                    (this.Generator.StateTopic(slug, nameof(Resource.LeakBatt1)), input.LeakBatt1),
+                    (this.Generator.StateTopic(slug, nameof(Resource.LeakBatt2)), input.LeakBatt2),
+                    (this.Generator.StateTopic(slug, nameof(Resource.LeakBatt3)), input.LeakBatt3),
+                    (this.Generator.StateTopic(slug, nameof(Resource.LeakBatt4)), input.LeakBatt4),
+                    (this.Generator.StateTopic(slug, nameof(Resource.LeakBatt5)), input.LeakBatt5),
+
                     /* Sensor Data */
                     (this.Generator.StateTopic(slug, nameof(Resource.BarometerAbsolute)), BaromUnits(input.BarometerAbsolute, us).ToStringOrEmpty()),
                     (this.Generator.StateTopic(slug, nameof(Resource.BarometerRelative)), BaromUnits(input.BarometerRelative, us).ToStringOrEmpty()),
@@ -168,6 +203,37 @@ public class MQTTLiason : MQTTLiasonBase<Resource, object, SlugMapping, SharedOp
                 new { Sensor = nameof(Resource.Freq), Type = Const.SENSOR },
                 new { Sensor = nameof(Resource.Model), Type = Const.SENSOR },
                 new { Sensor = nameof(Resource.DateUTC), Type = Const.SENSOR },
+
+                new { Sensor = nameof(Resource.Wh26Batt), Type = Const.SENSOR },
+                new { Sensor = nameof(Resource.Wh40Batt), Type = Const.SENSOR },
+                new { Sensor = nameof(Resource.Wh57Batt), Type = Const.SENSOR },
+                new { Sensor = nameof(Resource.Wh68Batt), Type = Const.SENSOR },
+                new { Sensor = nameof(Resource.Wh80Batt), Type = Const.SENSOR },
+                new { Sensor = nameof(Resource.Batt1), Type = Const.SENSOR },
+                new { Sensor = nameof(Resource.Batt2), Type = Const.SENSOR },
+                new { Sensor = nameof(Resource.Batt3), Type = Const.SENSOR },
+                new { Sensor = nameof(Resource.Batt4), Type = Const.SENSOR },
+                new { Sensor = nameof(Resource.Batt5), Type = Const.SENSOR },
+                new { Sensor = nameof(Resource.Batt6), Type = Const.SENSOR },
+                new { Sensor = nameof(Resource.Batt7), Type = Const.SENSOR },
+                new { Sensor = nameof(Resource.Batt8), Type = Const.SENSOR },
+                new { Sensor = nameof(Resource.SoilBatt1), Type = Const.SENSOR },
+                new { Sensor = nameof(Resource.SoilBatt2), Type = Const.SENSOR },
+                new { Sensor = nameof(Resource.SoilBatt3), Type = Const.SENSOR },
+                new { Sensor = nameof(Resource.SoilBatt4), Type = Const.SENSOR },
+                new { Sensor = nameof(Resource.SoilBatt5), Type = Const.SENSOR },
+                new { Sensor = nameof(Resource.SoilBatt6), Type = Const.SENSOR },
+                new { Sensor = nameof(Resource.SoilBatt7), Type = Const.SENSOR },
+                new { Sensor = nameof(Resource.SoilBatt8), Type = Const.SENSOR },
+                new { Sensor = nameof(Resource.Pm25Batt1), Type = Const.SENSOR },
+                new { Sensor = nameof(Resource.Pm25Batt2), Type = Const.SENSOR },
+                new { Sensor = nameof(Resource.Pm25Batt3), Type = Const.SENSOR },
+                new { Sensor = nameof(Resource.Pm25Batt4), Type = Const.SENSOR },
+                new { Sensor = nameof(Resource.LeakBatt1), Type = Const.SENSOR },
+                new { Sensor = nameof(Resource.LeakBatt2), Type = Const.SENSOR },
+                new { Sensor = nameof(Resource.LeakBatt3), Type = Const.SENSOR },
+                new { Sensor = nameof(Resource.LeakBatt4), Type = Const.SENSOR },
+                new { Sensor = nameof(Resource.LeakBatt5), Type = Const.SENSOR },
                 
                 /* Sensor Data */
                 new { Sensor = nameof(Resource.BarometerAbsolute), Type = Const.SENSOR },
@@ -234,6 +300,8 @@ public class MQTTLiason : MQTTLiasonBase<Resource, object, SlugMapping, SharedOp
 
         foreach (var input in this.Questions)
         {
+            discoveries.Add(this.Generator.DataReceivedDiscovery(input.Slug, assembly, this.DataReceivedExpiration));
+
             foreach (var map in mapping)
             {
                 this.Logger.LogDebug("Generating discovery for {sensor}", map.Sensor);
@@ -345,6 +413,7 @@ public class MQTTLiason : MQTTLiasonBase<Resource, object, SlugMapping, SharedOp
     }
 
     private readonly UnitSystem UnitSystem;
+    private readonly TimeSpan DataReceivedExpiration;
 }
 
 public static class NullableDecimalExt
